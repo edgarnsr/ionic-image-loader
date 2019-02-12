@@ -374,11 +374,11 @@ export class ImageLoader {
                         });
                     });
                 },
-                error => {
-                    console.log('error',error);
+                e => {
+                    console.log('error',e);
                     // Could not get image via http Cordova
-                    error(error);
-                    reject(error);
+                    error(e);
+                    reject(e);
                 });
             }
         },
