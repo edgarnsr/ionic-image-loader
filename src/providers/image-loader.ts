@@ -1,10 +1,10 @@
 import { HttpClient }             from '@angular/common/http';
 import { Injectable }             from '@angular/core';
 import { File, FileEntry }        from '@ionic-native/file';
-import { normalizeURL, Platform } from 'ionic-angular';
+import { Platform }               from 'ionic-angular';
 import { fromEvent }              from 'rxjs/observable/fromEvent';
-import { first }                  from 'rxjs/operators';
-import { ImageLoaderConfig }      from './image-loader-config';
+import { first }                   from 'rxjs/operators';
+import { ImageLoaderConfig }       from './image-loader-config';
 import { HTTP } from '@ionic-native/http';
 
 interface IndexItem {
@@ -28,31 +28,31 @@ export class ImageLoader {
    * When the cache service isn't ready, images are loaded via browser instead.
    * @type {boolean}
    */
-  private isCacheReady: boolean = false;
+  private isCacheReady = false;
   /**
    * Indicates if this service is initialized.
    * This service is initialized once all the setup is done.
    * @type {boolean}
    */
-  private isInit: boolean = false;
+  private isInit = false;
   /**
    * Number of concurrent requests allowed
    * @type {number}
    */
-  private concurrency: number = 5;
+  private concurrency = 5;
   /**
    * Queue items
    * @type {Array}
    */
   private queue: QueueItem[] = [];
-  private processing: number = 0;
+  private processing = 0;
   /**
    * Fast accessible Object for currently processing items
    */
   private currentlyProcessing: { [index: string]: Promise<any> } = {};
   private cacheIndex: IndexItem[] = [];
-  private currentCacheSize: number = 0;
-  private indexed: boolean = false;
+  private currentCacheSize = 0;
+  private indexed = false;
 
   constructor(
     private config: ImageLoaderConfig,
@@ -107,7 +107,7 @@ export class ImageLoader {
 
   private get isIonicWKWebView(): boolean {
     return (
-      this.isWKWebView &&
+      (this.isWKWebView || this.platform.is('android')) &&
       (location.host === 'localhost:8080' || (<any>window).LiveReload)
     );
   }
@@ -134,11 +134,47 @@ export class ImageLoader {
   }
 
   getFileCacheDirectory() {
-    if(this.config.cacheDirectoryType == 'data') {
+    if (this.config.cacheDirectoryType == 'data') {
       return this.file.dataDirectory;
     }
     return this.file.cacheDirectory;
   }
+
+  /**
+   * Clears cache of a single image
+   * @param {string} imageUrl Image URL
+   */
+  clearImageCache(imageUrl: string): void {
+    if (!this.platform.is('cordova')) {
+      return;
+    }
+    const clear = () => {
+      if (!this.isInit) {
+        // do not run this method until our service is initialized
+        setTimeout(clear.bind(this), 500);
+        return;
+      }
+      const fileName = this.createFileName(imageUrl);
+      const route = this.getFileCacheDirectory() + this.config.cacheDirectoryName;
+      // pause any operations
+      this.isInit = false;
+      this.file.removeFile(route, fileName)
+        .then(() => {
+          if (this.isWKWebView && !this.isIonicWKWebView) {
+            this.file.removeFile(this.file.tempDirectory + this.config.cacheDirectoryName, fileName)
+              .then(() => {
+                this.initCache(true);
+              }).catch(err => {
+              // Handle error?
+            });
+          } else {
+            this.initCache(true);
+          }
+        }).catch(this.throwError.bind(this));
+    };
+    clear();
+  }
+
 
   /**
    * Clears the cache
@@ -289,11 +325,11 @@ export class ImageLoader {
     if (this.currentlyProcessing[currentItem.imageUrl] === undefined) {
       this.currentlyProcessing[currentItem.imageUrl] = new Promise((resolve, reject) => {
         // process more items concurrently if we can
-        if (this.canProcess) this.processQueue();
+        if (this.canProcess) { this.processQueue(); }
 
         const localDir = this.getFileCacheDirectory() + this.config.cacheDirectoryName + '/';
         const fileName = this.createFileName(currentItem.imageUrl);
-          
+
             if (!this.platform.is('cordova')) {
                 this.http.get(currentItem.imageUrl, {
                 responseType: 'blob',
@@ -345,9 +381,9 @@ export class ImageLoader {
                     reject(error);
                 });
             }
-        
         },
       );
+
     } else {
       // Prevented same Image from loading at the same time
       this.currentlyProcessing[currentItem.imageUrl].then(() => {
@@ -548,14 +584,8 @@ export class ImageLoader {
             // in this case only the tempDirectory is accessible,
             // therefore the file needs to be copied into that directory first!
             if (this.isIonicWKWebView) {
-              // Use Ionic normalizeUrl to generate the right URL for Ionic WKWebView
-              if(typeof Ionic.normalizeURL === 'function' ) {
-                resolve(Ionic.normalizeURL(fileEntry.nativeURL));
-              } else if (Ionic.WebView && typeof Ionic.WebView.convertFileSrc === 'function') {
-                resolve(Ionic.WebView.convertFileSrc(fileEntry.nativeURL));
-              } else {
-                resolve(normalizeURL(fileEntry.nativeURL));
-              }
+              // Use Ionic convertFileSrc to generate the right URL for Ionic WKWebView
+              resolve(Ionic.WebView.convertFileSrc(fileEntry.nativeURL));
             } else if (this.isWKWebView) {
               // check if file already exists in temp directory
               this.file
@@ -563,7 +593,7 @@ export class ImageLoader {
                 .then((tempFileEntry: FileEntry) => {
                   // file exists in temp directory
                   // return native path
-                  resolve(tempFileEntry.nativeURL);
+                  resolve(Ionic.WebView.convertFileSrc(tempFileEntry.nativeURL));
                 })
                 .catch(() => {
                   // file does not yet exist in the temp directory.
@@ -573,13 +603,13 @@ export class ImageLoader {
                     .then((tempFileEntry: FileEntry) => {
                       // now the file exists in the temp directory
                       // return native path
-                      resolve(tempFileEntry.nativeURL);
+                      resolve(Ionic.WebView.convertFileSrc(tempFileEntry.nativeURL));
                     })
                     .catch(reject);
                 });
             } else {
               // return native path
-              resolve(fileEntry.nativeURL);
+              resolve(Ionic.WebView.convertFileSrc(fileEntry.nativeURL));
             }
           }
         })
@@ -674,7 +704,7 @@ export class ImageLoader {
     return (
       this.hashString(url).toString() +
       (this.config.fileNameCachedWithExtension
-        ? this.getExtensionFromFileName(url)
+        ? this.getExtensionFromUrl(url)
         : '')
     );
   }
@@ -701,15 +731,15 @@ export class ImageLoader {
   }
 
   /**
-   * extract extension from filename or url
+   * Extract extension from filename or url
    *
-   * @param {string} filename
+   * @param {string} url
    * @returns {string}
    */
-  private getExtensionFromFileName(filename: string): string {
+  private getExtensionFromUrl(url: string): string {
+    const urlWitoutParams = url.split(/\#|\?/)[0];
     return (
-      // tslint:disable-next-line
-      filename.substr((~-filename.lastIndexOf('.') >>> 0) + 1) ||
+      urlWitoutParams.substr((~-urlWitoutParams.lastIndexOf('.') >>> 0) + 1) ||
       this.config.fallbackFileNameCachedExtension
     );
   }

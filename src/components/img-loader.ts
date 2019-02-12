@@ -197,8 +197,7 @@ export class ImgLoaderComponent implements OnInit {
         this.element = this.renderer.createElement('img');
         this.renderer.appendChild(this._element.nativeElement, this.element);
       }
-      this.renderer.setStyle(this.element,'width',this.config.width);
-      this.renderer.setStyle(this.element,'height',this.config.height);
+
       // set it's src
       this.renderer.setAttribute(this.element, 'src', imageUrl);
 
@@ -228,7 +227,8 @@ export class ImgLoaderComponent implements OnInit {
         `url("${imageUrl || this.fallbackUrl}")`,
       );
     }
-
-    this.load.emit(this);
+    if(stopLoading) {
+      this.load.emit(this);
+    }
   }
 }
