@@ -5,6 +5,7 @@ import { normalizeURL, Platform } from 'ionic-angular';
 import { fromEvent }              from 'rxjs/observable/fromEvent';
 import { first }                  from 'rxjs/operators';
 import { ImageLoaderConfig }      from './image-loader-config';
+import { HTTP } from '@ionic-native/http';
 
 interface IndexItem {
   name: string;
@@ -58,6 +59,7 @@ export class ImageLoader {
     private file: File,
     private http: HttpClient,
     private platform: Platform,
+    private httpCordova: HTTP
   ) {
     if (!platform.is('cordova')) {
       // we are running on a browser, or using livereload
@@ -291,35 +293,59 @@ export class ImageLoader {
 
         const localDir = this.getFileCacheDirectory() + this.config.cacheDirectoryName + '/';
         const fileName = this.createFileName(currentItem.imageUrl);
-
-        this.http.get(currentItem.imageUrl, {
-          responseType: 'blob',
-          headers: this.config.httpHeaders
-        }).subscribe(
-          (data: Blob) => {
-            this.file.writeFile(localDir, fileName, data, {replace: true}).then((file: FileEntry) => {
-              if (this.isCacheSpaceExceeded) {
-                this.maintainCacheSize();
-              }
-              this.addFileToIndex(file).then(() => {
-                this.getCachedImagePath(currentItem.imageUrl).then((localUrl) => {
-                  currentItem.resolve(localUrl);
-                  resolve();
-                  done();
-                  this.maintainCacheSize();
+          
+            if (!this.platform.is('cordova')) {
+                this.http.get(currentItem.imageUrl, {
+                responseType: 'blob',
+                headers: this.config.httpHeaders
+                }).subscribe(
+                (data: Blob) => {
+                    this.file.writeFile(localDir, fileName, data, {replace: true}).then((file: FileEntry) => {
+                    if (this.isCacheSpaceExceeded) {
+                        this.maintainCacheSize();
+                    }
+                    this.addFileToIndex(file).then(() => {
+                        this.getCachedImagePath(currentItem.imageUrl).then((localUrl) => {
+                        currentItem.resolve(localUrl);
+                        resolve();
+                        done();
+                        this.maintainCacheSize();
+                        });
+                    });
+                    }).catch((e) => {
+                    // Could not write image
+                    error(e);
+                    reject(e);
+                    });
+                },
+                (e) => {
+                    // Could not get image via httpClient
+                    error(e);
+                    reject(e);
                 });
-              });
-            }).catch((e) => {
-              //Could not write image
-              error(e);
-              reject(e);
-            });
-          },
-          (e) => {
-            //Could not get image via httpClient
-            error(e);
-            reject(e);
-          });
+            }
+            else {
+                this.httpCordova.downloadFile(currentItem.imageUrl,{},this.config.httpHeaders,localDir + fileName).then((file: FileEntry) => {
+                    if (this.isCacheSpaceExceeded) {
+                        this.maintainCacheSize();
+                    }
+                    this.addFileToIndex(file).then(() => {
+                        this.getCachedImagePath(currentItem.imageUrl).then((localUrl) => {
+                            currentItem.resolve(localUrl);
+                            resolve();
+                            done();
+                            this.maintainCacheSize();
+                        });
+                    });
+                },
+                error => {
+                    console.log('error',error);
+                    // Could not get image via http Cordova
+                    error(error);
+                    reject(error);
+                });
+            }
+        
         },
       );
     } else {
