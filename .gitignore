@@ -1,6 +1,5 @@
 node_modules
 aot
-dist
 .idea
 .DS_Store
 .gitignore
