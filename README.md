@@ -32,7 +32,7 @@ View our example project here: https://github.com/zyramedia/ionic-image-loader-e
 
 #### 1. Install the NPM Package
 ```
-npm install --save ionic-image-loader
+npm install --save https://github.com/edgarnsr/ionic-image-loader.git
 ```
 
 #### 2. Install Required Plugins
