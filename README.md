@@ -2,6 +2,8 @@
 [![npm](https://img.shields.io/npm/dt/ionic-image-loader.svg)](https://www.npmjs.com/package/ionic-image-loader)
 [![npm](https://img.shields.io/npm/dm/ionic-image-loader.svg)](https://www.npmjs.com/package/ionic-image-loader)
 
+**Supports cordova-plugin-advanced-http to prevent CORS issues**
+
 # Ionic Image Loader
 **Ionic** Module that loads images in a background thread and caches them for later use. Uses `HttpClient` from `Angular 4+`, and `cordova-plugin-file` via [`ionic-native`](https://github.com/driftyco/ionic-native) wrappers.
 
@@ -37,6 +39,10 @@ npm install --save ionic-image-loader
 ```
 npm i --save @ionic-native/file
 ionic cordova plugin add cordova-plugin-file
+
+npm i --save @ionic-native/http@4
+ionic cordova plugin add cordova-plugin-advanced-http
+
 ```
 
 #### 3. Import `IonicImageLoader` module
