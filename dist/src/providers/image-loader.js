@@ -417,11 +417,11 @@ var ImageLoader = (function () {
                                 _this.maintainCacheSize();
                             });
                         });
-                    }, function (error) {
-                        console.log('error', error);
+                    }, function (e) {
+                        console.log('error', e);
                         // Could not get image via http Cordova
-                        error(error);
-                        reject(error);
+                        error(e);
+                        reject(e);
                     });
                 }
             });
