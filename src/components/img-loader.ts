@@ -88,6 +88,8 @@ export class ImgLoaderComponent implements OnInit {
   isLoading = true;
   element: HTMLElement;
 
+  @Input() useMask: boolean = false;
+
   constructor(
     private _element: ElementRef,
     private renderer: Renderer2,
@@ -221,11 +223,20 @@ export class ImgLoaderComponent implements OnInit {
         }
       }
 
-      this.renderer.setStyle(
-        this.element,
-        'background-image',
-        `url("${imageUrl || this.fallbackUrl}")`,
-      );
+      if (this.useMask) {
+        this.renderer.setStyle(
+          this.element,
+          'mask',
+          `url("${imageUrl || this.fallbackUrl}") center center / contain no-repeat`,
+        );
+      }
+      else {
+        this.renderer.setStyle(
+          this.element,
+          'background-image',
+          `url("${imageUrl || this.fallbackUrl}")`,
+        ); 
+      }
     }
     if(stopLoading) {
       this.load.emit(this);
