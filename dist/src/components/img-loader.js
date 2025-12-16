@@ -72,6 +72,7 @@ var ImgLoaderComponent = (function () {
            * @type {boolean}
            */
         this.isLoading = true;
+        this.useMask = false;
         this._useImg = this.config.useImg;
     }
     Object.defineProperty(ImgLoaderComponent.prototype, "useImg", {
@@ -210,7 +211,12 @@ var ImgLoaderComponent = (function () {
                     this.renderer.setStyle(this.element, propMap[prop], this[prop]);
                 }
             }
-            this.renderer.setStyle(this.element, 'background-image', "url(\"" + (imageUrl || this.fallbackUrl) + "\")");
+            if (this.useMask) {
+                this.renderer.setStyle(this.element, 'mask', "url(\"" + (imageUrl || this.fallbackUrl) + "\") center center / contain no-repeat");
+            }
+            else {
+                this.renderer.setStyle(this.element, 'background-image', "url(\"" + (imageUrl || this.fallbackUrl) + "\")");
+            }
         }
         if (stopLoading) {
             this.load.emit(this);
@@ -247,6 +253,7 @@ var ImgLoaderComponent = (function () {
         "spinnerName": [{ type: Input },],
         "spinnerColor": [{ type: Input },],
         "load": [{ type: Output },],
+        "useMask": [{ type: Input },],
         "useImg": [{ type: Input },],
         "noCache": [{ type: Input },],
         "src": [{ type: Input },],

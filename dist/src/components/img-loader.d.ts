@@ -69,6 +69,7 @@ export declare class ImgLoaderComponent implements OnInit {
      */
     isLoading: boolean;
     element: HTMLElement;
+    useMask: boolean;
     constructor(_element: ElementRef, renderer: Renderer2, imageLoader: ImageLoader, config: ImageLoaderConfig);
     private _useImg;
     /**
