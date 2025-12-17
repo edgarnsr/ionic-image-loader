@@ -73,6 +73,7 @@ var ImgLoaderComponent = (function () {
            */
         this.isLoading = true;
         this.useMask = false;
+        this.forceBase64 = false;
         this._useImg = this.config.useImg;
     }
     Object.defineProperty(ImgLoaderComponent.prototype, "useImg", {
@@ -133,7 +134,7 @@ var ImgLoaderComponent = (function () {
     ImgLoaderComponent.prototype.updateImage = function (imageUrl) {
         var _this = this;
         this.imageLoader
-            .getImagePath(imageUrl)
+            .getImagePath(imageUrl, this.forceBase64)
             .then(function (url) { return _this.setImage(url); })
             .catch(function (error) { return _this.setImage(_this.fallbackUrl || imageUrl); });
     };
@@ -254,6 +255,7 @@ var ImgLoaderComponent = (function () {
         "spinnerColor": [{ type: Input },],
         "load": [{ type: Output },],
         "useMask": [{ type: Input },],
+        "forceBase64": [{ type: Input },],
         "useImg": [{ type: Input },],
         "noCache": [{ type: Input },],
         "src": [{ type: Input },],

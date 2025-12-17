@@ -90,6 +90,8 @@ export class ImgLoaderComponent implements OnInit {
 
   @Input() useMask: boolean = false;
 
+  @Input() forceBase64: boolean = false;
+
   constructor(
     private _element: ElementRef,
     private renderer: Renderer2,
@@ -154,7 +156,7 @@ export class ImgLoaderComponent implements OnInit {
 
   private updateImage(imageUrl: string) {
     this.imageLoader
-      .getImagePath(imageUrl)
+      .getImagePath(imageUrl, this.forceBase64)
       .then((url: string) => this.setImage(url))
       .catch((error: any) => this.setImage(this.fallbackUrl || imageUrl));
   }
