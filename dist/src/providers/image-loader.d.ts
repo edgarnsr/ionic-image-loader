@@ -72,7 +72,7 @@ export declare class ImageLoader {
      * @param {string} imageUrl The remote URL of the image
      * @returns {Promise<string>} Returns a promise that will always resolve with an image URL
      */
-    getImagePath(imageUrl: string): Promise<string>;
+    getImagePath(imageUrl: string, forceBase64?: boolean): Promise<string>;
     /**
      * Returns if an imageUrl is an relative path
      * @param {string} imageUrl
@@ -129,7 +129,7 @@ export declare class ImageLoader {
      * @param {string} url The remote URL of the image
      * @returns {Promise<string>} Returns a promise that resolves with the local path if exists, or rejects if doesn't exist
      */
-    private getCachedImagePath(url);
+    private getCachedImagePath(url, forceBase64?);
     /**
      * Throws a console error if debug mode is enabled
      * @param {any[]} args Error message

@@ -226,7 +226,7 @@ export class ImageLoader {
    * @param {string} imageUrl The remote URL of the image
    * @returns {Promise<string>} Returns a promise that will always resolve with an image URL
    */
-  getImagePath(imageUrl: string): Promise<string> {
+  getImagePath(imageUrl: string, forceBase64: boolean = false): Promise<string> {
     if (typeof imageUrl !== 'string' || imageUrl.length <= 0) {
       return Promise.reject('The image url provided was empty or invalid.');
     }
@@ -236,7 +236,7 @@ export class ImageLoader {
         if (this.isImageUrlRelative(imageUrl)) {
           resolve(imageUrl);
         } else {
-          this.getCachedImagePath(imageUrl)
+          this.getCachedImagePath(imageUrl, forceBase64)
             .then(resolve)
             .catch(() => {
               // image doesn't exist in cache, lets fetch it and save it
@@ -543,7 +543,7 @@ export class ImageLoader {
    * @param {string} url The remote URL of the image
    * @returns {Promise<string>} Returns a promise that resolves with the local path if exists, or rejects if doesn't exist
    */
-  private getCachedImagePath(url: string): Promise<string> {
+  private getCachedImagePath(url: string, forceBase64: boolean = false): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       // make sure cache is ready
       if (!this.isCacheReady) {
@@ -568,7 +568,7 @@ export class ImageLoader {
         .then((fileEntry: FileEntry) => {
           // file exists in cache
 
-          if (this.config.imageReturnType === 'base64') {
+          if (this.config.imageReturnType === 'base64' || forceBase64) {
             // read the file as data url and return the base64 string.
             // should always be successful as the existence of the file
             // is already ensured
