@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2 } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, Renderer2, SimpleChanges } from '@angular/core';
 
 import { ImageLoader }       from '../providers/image-loader';
 import { ImageLoaderConfig } from '../providers/image-loader-config';
@@ -25,7 +25,7 @@ export interface ImageAttribute {
     'ion-spinner { float: none; margin-left: auto; margin-right: auto; display: block; }',
   ],
 })
-export class ImgLoaderComponent implements OnInit {
+export class ImgLoaderComponent implements OnInit, OnChanges {
   /**
    * Fallback URL to load when the image url fails to load or does not exist.
    */
@@ -131,7 +131,7 @@ export class ImgLoaderComponent implements OnInit {
   @Input()
   set src(imageUrl: string) {
     this._src = this.processImageUrl(imageUrl);
-    this.updateImage(this._src);
+    // this.updateImage(this._src);
   };
 
   ngOnInit(): void {
@@ -153,6 +153,15 @@ export class ImgLoaderComponent implements OnInit {
       }
     }
   }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this._src && (
+            changes['src'].currentValue !== changes['src'].previousValue ||
+            changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue
+        )) {
+            this.updateImage(this._src);
+        }
+    }
 
   private updateImage(imageUrl: string) {
     this.imageLoader

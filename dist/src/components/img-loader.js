@@ -106,7 +106,7 @@ var ImgLoaderComponent = (function () {
            */
         function (imageUrl) {
             this._src = this.processImageUrl(imageUrl);
-            this.updateImage(this._src);
+            // this.updateImage(this._src);
         },
         enumerable: true,
         configurable: true
@@ -129,6 +129,12 @@ var ImgLoaderComponent = (function () {
             else {
                 this.isLoading = false;
             }
+        }
+    };
+    ImgLoaderComponent.prototype.ngOnChanges = function (changes) {
+        if (this._src && (changes['src'].currentValue !== changes['src'].previousValue ||
+            changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue)) {
+            this.updateImage(this._src);
         }
     };
     ImgLoaderComponent.prototype.updateImage = function (imageUrl) {

@@ -1,11 +1,11 @@
-import { ElementRef, EventEmitter, OnInit, Renderer2 } from '@angular/core';
+import { ElementRef, EventEmitter, OnChanges, OnInit, Renderer2, SimpleChanges } from '@angular/core';
 import { ImageLoader } from '../providers/image-loader';
 import { ImageLoaderConfig } from '../providers/image-loader-config';
 export interface ImageAttribute {
     element: string;
     value: string;
 }
-export declare class ImgLoaderComponent implements OnInit {
+export declare class ImgLoaderComponent implements OnInit, OnChanges {
     private _element;
     private renderer;
     private imageLoader;
@@ -88,6 +88,7 @@ export declare class ImgLoaderComponent implements OnInit {
      */
     src: string;
     ngOnInit(): void;
+    ngOnChanges(changes: SimpleChanges): void;
     private updateImage(imageUrl);
     /**
      * Gets the image URL to be loaded and disables caching if necessary
