@@ -132,8 +132,10 @@ var ImgLoaderComponent = (function () {
         }
     };
     ImgLoaderComponent.prototype.ngOnChanges = function (changes) {
+        console.log('img-loader', 'ngOnChanges', changes);
         if (this._src && (changes['src'].currentValue !== changes['src'].previousValue ||
             changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue)) {
+            console.log('img-loader', 'ngOnChanges updateImage', changes);
             this.updateImage(this._src);
         }
     };
