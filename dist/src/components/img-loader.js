@@ -136,7 +136,11 @@ var ImgLoaderComponent = (function () {
         if (this._src && (changes['src'].currentValue !== changes['src'].previousValue ||
             changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue)) {
             console.log('img-loader', 'ngOnChanges updateImage', changes);
-            this.updateImage(this._src, changes['forceBase64'].currentValue === true);
+            var change = changes && changes.forceBase64;
+            var forceBase64 = change && change.currentValue !== undefined
+                ? change.currentValue
+                : false;
+            this.updateImage(this._src, forceBase64 === true);
         }
     };
     ImgLoaderComponent.prototype.updateImage = function (imageUrl, forceBase64) {
