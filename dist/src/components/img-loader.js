@@ -136,13 +136,14 @@ var ImgLoaderComponent = (function () {
         if (this._src && (changes['src'].currentValue !== changes['src'].previousValue ||
             changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue)) {
             console.log('img-loader', 'ngOnChanges updateImage', changes);
-            this.updateImage(this._src);
+            this.updateImage(this._src, changes['forceBase64'].currentValue === true);
         }
     };
-    ImgLoaderComponent.prototype.updateImage = function (imageUrl) {
+    ImgLoaderComponent.prototype.updateImage = function (imageUrl, forceBase64) {
         var _this = this;
+        if (forceBase64 === void 0) { forceBase64 = false; }
         this.imageLoader
-            .getImagePath(imageUrl, this.forceBase64)
+            .getImagePath(imageUrl, forceBase64)
             .then(function (url) { return _this.setImage(url); })
             .catch(function (error) { return _this.setImage(_this.fallbackUrl || imageUrl); });
     };

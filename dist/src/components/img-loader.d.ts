@@ -89,7 +89,7 @@ export declare class ImgLoaderComponent implements OnInit, OnChanges {
     src: string;
     ngOnInit(): void;
     ngOnChanges(changes: SimpleChanges): void;
-    private updateImage(imageUrl);
+    private updateImage(imageUrl, forceBase64?);
     /**
      * Gets the image URL to be loaded and disables caching if necessary
      * @returns {string}
