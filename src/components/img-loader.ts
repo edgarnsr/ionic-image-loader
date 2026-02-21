@@ -131,7 +131,7 @@ export class ImgLoaderComponent implements OnInit, OnChanges {
   @Input()
   set src(imageUrl: string) {
     this._src = this.processImageUrl(imageUrl);
-    // this.updateImage(this._src);
+    this.updateImage(this._src);
   };
 
   ngOnInit(): void {
@@ -155,23 +155,17 @@ export class ImgLoaderComponent implements OnInit, OnChanges {
   }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (this._src && (
-            changes['src'].currentValue !== changes['src'].previousValue ||
-            changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue
-        )) {
-            const change = changes && changes.forceBase64;
-            const forceBase64 =
-            change && change.currentValue !== undefined
-                ? change.currentValue
-                : false;
-            console.log('img-loader', change, forceBase64);
-            this.updateImage(this._src, forceBase64);
-        }
+        const change = changes && changes.forceBase64;
+        const forceBase64 =
+        change && change.currentValue !== undefined
+            ? change.currentValue
+            : false;
+        this.imageLoader.forceBase64 = forceBase64;
     }
 
-  private updateImage(imageUrl: string, forceBase64: boolean = false) {
+  private updateImage(imageUrl: string) {
     this.imageLoader
-      .getImagePath(imageUrl, forceBase64)
+      .getImagePath(imageUrl)
       .then((url: string) => this.setImage(url))
       .catch((error: any) => this.setImage(this.fallbackUrl || imageUrl));
   }
