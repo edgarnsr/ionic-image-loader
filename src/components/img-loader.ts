@@ -155,18 +155,17 @@ export class ImgLoaderComponent implements OnInit, OnChanges {
   }
 
     ngOnChanges(changes: SimpleChanges): void {
-        console.log('img-loader','ngOnChanges', changes);
         if (this._src && (
             changes['src'].currentValue !== changes['src'].previousValue ||
             changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue
         )) {
-            console.log('img-loader','ngOnChanges updateImage', changes);
             const change = changes && changes.forceBase64;
             const forceBase64 =
             change && change.currentValue !== undefined
                 ? change.currentValue
                 : false;
-            this.updateImage(this._src, forceBase64 === true);
+            console.log('img-loader', change, forceBase64);
+            this.updateImage(this._src, forceBase64);
         }
     }
 
