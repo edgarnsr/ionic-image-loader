@@ -106,7 +106,7 @@ var ImgLoaderComponent = (function () {
            */
         function (imageUrl) {
             this._src = this.processImageUrl(imageUrl);
-            // this.updateImage(this._src);
+            this.updateImage(this._src);
         },
         enumerable: true,
         configurable: true
@@ -132,21 +132,16 @@ var ImgLoaderComponent = (function () {
         }
     };
     ImgLoaderComponent.prototype.ngOnChanges = function (changes) {
-        if (this._src && (changes['src'].currentValue !== changes['src'].previousValue ||
-            changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue)) {
-            var change = changes && changes.forceBase64;
-            var forceBase64 = change && change.currentValue !== undefined
-                ? change.currentValue
-                : false;
-            console.log('img-loader', change, forceBase64);
-            this.updateImage(this._src, forceBase64);
-        }
+        var change = changes && changes.forceBase64;
+        var forceBase64 = change && change.currentValue !== undefined
+            ? change.currentValue
+            : false;
+        this.imageLoader.forceBase64 = forceBase64;
     };
-    ImgLoaderComponent.prototype.updateImage = function (imageUrl, forceBase64) {
+    ImgLoaderComponent.prototype.updateImage = function (imageUrl) {
         var _this = this;
-        if (forceBase64 === void 0) { forceBase64 = false; }
         this.imageLoader
-            .getImagePath(imageUrl, forceBase64)
+            .getImagePath(imageUrl)
             .then(function (url) { return _this.setImage(url); })
             .catch(function (error) { return _this.setImage(_this.fallbackUrl || imageUrl); });
     };

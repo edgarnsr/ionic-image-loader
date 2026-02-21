@@ -44,6 +44,7 @@ var ImageLoader = (function () {
         this.cacheIndex = [];
         this.currentCacheSize = 0;
         this.indexed = false;
+        this._forceBase64 = false;
         if (!platform.is('cordova')) {
             // we are running on a browser, or using livereload
             // plugin will not function in this case
@@ -68,6 +69,16 @@ var ImageLoader = (function () {
             });
         }
     }
+    Object.defineProperty(ImageLoader.prototype, "forceBase64", {
+        get: function () {
+            return this._forceBase64;
+        },
+        set: function (v) {
+            this._forceBase64 = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(ImageLoader.prototype, "nativeAvailable", {
         get: function () {
             return File.installed();
@@ -255,9 +266,8 @@ var ImageLoader = (function () {
        * @param {string} imageUrl The remote URL of the image
        * @returns {Promise<string>} Returns a promise that will always resolve with an image URL
        */
-    function (imageUrl, forceBase64) {
+    function (imageUrl) {
         var _this = this;
-        if (forceBase64 === void 0) { forceBase64 = false; }
         if (typeof imageUrl !== 'string' || imageUrl.length <= 0) {
             return Promise.reject('The image url provided was empty or invalid.');
         }
@@ -267,7 +277,7 @@ var ImageLoader = (function () {
                     resolve(imageUrl);
                 }
                 else {
-                    _this.getCachedImagePath(imageUrl, forceBase64)
+                    _this.getCachedImagePath(imageUrl)
                         .then(resolve)
                         .catch(function () {
                         // image doesn't exist in cache, lets fetch it and save it
@@ -641,9 +651,8 @@ var ImageLoader = (function () {
        * @param {string} url The remote URL of the image
        * @returns {Promise<string>} Returns a promise that resolves with the local path if exists, or rejects if doesn't exist
        */
-    function (url, forceBase64) {
+    function (url) {
         var _this = this;
-        if (forceBase64 === void 0) { forceBase64 = false; }
         return new Promise(function (resolve, reject) {
             // make sure cache is ready
             if (!_this.isCacheReady) {
@@ -663,7 +672,7 @@ var ImageLoader = (function () {
                 .resolveLocalFilesystemUrl(dirPath + '/' + fileName)
                 .then(function (fileEntry) {
                 // file exists in cache
-                if (_this.config.imageReturnType === 'base64' || forceBase64) {
+                if (_this.config.imageReturnType === 'base64' || _this.forceBase64) {
                     // read the file as data url and return the base64 string.
                     // should always be successful as the existence of the file
                     // is already ensured
