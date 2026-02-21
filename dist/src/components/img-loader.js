@@ -132,15 +132,14 @@ var ImgLoaderComponent = (function () {
         }
     };
     ImgLoaderComponent.prototype.ngOnChanges = function (changes) {
-        console.log('img-loader', 'ngOnChanges', changes);
         if (this._src && (changes['src'].currentValue !== changes['src'].previousValue ||
             changes['forceBase64'].currentValue !== changes['forceBase64'].previousValue)) {
-            console.log('img-loader', 'ngOnChanges updateImage', changes);
             var change = changes && changes.forceBase64;
             var forceBase64 = change && change.currentValue !== undefined
                 ? change.currentValue
                 : false;
-            this.updateImage(this._src, forceBase64 === true);
+            console.log('img-loader', change, forceBase64);
+            this.updateImage(this._src, forceBase64);
         }
     };
     ImgLoaderComponent.prototype.updateImage = function (imageUrl, forceBase64) {

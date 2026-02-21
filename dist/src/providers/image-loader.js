@@ -663,7 +663,6 @@ var ImageLoader = (function () {
                 .resolveLocalFilesystemUrl(dirPath + '/' + fileName)
                 .then(function (fileEntry) {
                 // file exists in cache
-                console.log('img-loader', 'resolveLocalFilesystemUrl', forceBase64);
                 if (_this.config.imageReturnType === 'base64' || forceBase64) {
                     // read the file as data url and return the base64 string.
                     // should always be successful as the existence of the file
